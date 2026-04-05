@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Менеджер фестиваля v2</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;color:#1a1a1a;background:#fff}
+#root{max-width:980px;margin:0 auto;padding:1rem}
+.tabs{display:flex;border-bottom:.5px solid #e0e0e0;margin-bottom:1.5rem}
+.tb{padding:10px 20px;font-size:14px;background:none;border:none;cursor:pointer;color:#888;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit}
+.tb.on{color:#1a1a1a;border-bottom-color:#1a1a1a;font-weight:500}
+.tc{display:none}.tc.on{display:block}
+.uz{border:.5px dashed #bbb;border-radius:12px;padding:2rem;text-align:center;margin-bottom:1rem}
+.uz input{display:none}
+.ulbl{display:inline-block;padding:7px 18px;border:.5px solid #555;border-radius:8px;cursor:pointer;font-size:14px}
+.ulbl:hover{background:#f5f5f3}
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.5rem}
+@media(max-width:560px){.sgrid{grid-template-columns:1fr}}
+.sc{background:#f5f5f3;border-radius:8px;padding:.875rem}
+.sl{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.sm{font-size:22px;font-weight:500;line-height:1.2}
+.ssub{font-size:12px;color:#888;margin-top:3px}
+.sbar{height:3px;background:#e0e0e0;border-radius:2px;margin-top:8px;overflow:hidden}
+.wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{padding:7px 10px;text-align:left;font-size:11px;font-weight:500;color:#888;border-bottom:.5px solid #e0e0e0;white-space:nowrap;text-transform:uppercase;letter-spacing:.04em}
+td{padding:7px 10px;border-bottom:.5px solid #e0e0e0;vertical-align:middle}
+.rc:hover{background:#f5f5f3;cursor:pointer}
+.rc.sel{background:#e8f0fe}
+.bsh{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11px;background:#e8f0fe;color:#1a56db;font-weight:500;white-space:nowrap}
+.bsh-lg{font-size:13px;padding:3px 12px}
+.pill{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:500;background:#e6f4ea;color:#1e7e34}
+.det{margin-top:1.5rem;border:.5px solid #e0e0e0;border-radius:12px;padding:1.25rem;background:#fff}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem;font-size:13px}
+.dl{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+.rrow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem}
+.rchip{background:#f5f5f3;border-radius:99px;padding:3px 10px;font-size:12px}
+.dbox{margin-top:1rem;padding:1rem;background:#f5f5f3;border-radius:8px;font-size:13px;white-space:pre-wrap;line-height:1.6}
+input[type=text],input[type=number],select,textarea{font-family:inherit;color:#1a1a1a;font-size:14px;background:#fff;border:.5px solid #ccc;border-radius:8px;padding:7px 10px;outline:none;width:100%}
+input[type=text]:focus,input[type=number]:focus,select:focus,textarea:focus{border-color:#888}
+button{font-family:inherit;color:#1a1a1a;font-size:14px;background:#fff;border:.5px solid #ccc;border-radius:8px;padding:7px 14px;cursor:pointer}
+button:hover{background:#f5f5f3}
+button:disabled{opacity:.5;cursor:default}
+.btn-p{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.btn-p:hover{background:#333}
+.stn{font-size:11px;font-weight:500;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.pi label{font-size:12px;color:#888;display:block;margin-bottom:4px}
+.pi input{padding:6px 8px;font-size:13px}
+.warn-box{background:#fff8e1;border:.5px solid #f0c040;border-radius:8px;padding:.875rem;margin-bottom:1rem}
+.wi{font-size:13px;color:#7a5200;padding:3px 0 3px 14px;position:relative}
+.wi::before{content:"!";position:absolute;left:0;font-weight:700}
+.rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:1.5rem}
+.rcard{border:.5px solid #e0e0e0;border-radius:8px;padding:.875rem}
+.rtbdg{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:500;margin-bottom:8px}
+.rt2{background:#e8f0fe;color:#1a56db}
+.rt2d{background:#e3f8e8;color:#1a7434}
+.rt3{background:#fff0e6;color:#b45309}
+.rt4{background:#f3e8ff;color:#7e22ce}
+.rp{font-size:12px;color:#444;padding:2px 0;display:flex;justify-content:space-between;gap:8px}
+.rpr{font-size:11px;color:#888;white-space:nowrap}
+.ctbl{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:.5rem}
+.ctbl th{background:#f5f5f3;padding:8px 10px;text-align:left;font-size:11px;color:#888;text-transform:uppercase;white-space:nowrap}
+.ctbl td{padding:7px 10px;border-bottom:.5px solid #e0e0e0}
+.ctbl tfoot tr:first-child td{background:#f5f5f3;font-weight:500}
+.ctbl tfoot tr:last-child td{background:#1a1a1a;color:#fff;font-size:15px;font-weight:500}
+.ctbl input[type=number]{width:80px;padding:4px 6px;font-size:13px;text-align:right;border:.5px solid #e0e0e0;border-radius:4px}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid #ddd;border-top-color:#888;border-radius:50%;animation:sp .8s linear infinite;vertical-align:middle;margin-left:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:.75rem}
+</style>
+</head>
+<body>
+<div id="root">
+  <div class="tabs">
+    <button class="tb on" onclick="showTab('sv',this)">Сводная</button>
+    <button class="tb" onclick="showTab('ra',this)">Расчёт по расселению</button>
+  </div>
+
+  <!-- ========== СВОДНАЯ ========== -->
+  <div id="tab-sv" class="tc on">
+    <div id="sv-up" class="uz">
+      <input type="file" id="sv-f" accept=".xlsx,.xls">
+      <p style="font-weight:500;margin-bottom:8px">Сводная фестиваля</p>
+      <label for="sv-f" class="ulbl">Загрузить Excel файл</label>
+      <p style="margin-top:8px;font-size:12px;color:#888">Файл обрабатывается локально в браузере</p>
+    </div>
+
+    <div id="sv-app" style="display:none">
+      <div style="margin-bottom:10px">
+        <input id="sv-gq" type="text" placeholder="🔍 Глобальный поиск по всем сменам (имя, email, телефон)..." oninput="gSearch(this.value)" style="font-size:14px">
+      </div>
+      <div class="toolbar" id="sv-lc">
+        <select id="sv-sh" style="flex:2;min-width:180px;width:auto" onchange="onShCh()"></select>
+        <input id="sv-lq" type="text" placeholder="Поиск в смене..." style="flex:1;min-width:120px;width:auto" oninput="lSearch(this.value)">
+        <span id="sv-cnt" style="font-size:12px;color:#888;white-space:nowrap"></span>
+      </div>
+      <div id="sv-stats" class="sgrid"></div>
+      <div class="wrap">
+        <table>
+          <thead><tr id="sv-th"></tr></thead>
+          <tbody id="sv-tb"></tbody>
+        </table>
+      </div>
+      <div id="sv-det" class="det" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.875rem">
+          <div>
+            <div id="sv-dn" style="font-size:15px;font-weight:500;line-height:1.3"></div>
+            <div id="sv-ds" style="margin-top:5px"></div>
+          </div>
+          <button onclick="closeDet()">✕</button>
+        </div>
+        <div class="dgrid">
+          <div><div class="dl">Контакт</div><div id="sv-ph" style="font-size:13px"></div></div>
+          <div><div class="dl">Email</div><div id="sv-em" style="font-size:13px;word-break:break-all"></div></div>
+          <div><div class="dl">Участников</div><div id="sv-pe" style="font-size:13px"></div></div>
+          <div><div class="dl">Трансфер</div><div id="sv-tr" style="font-size:13px"></div></div>
+          <div style="grid-column:1/-1"><div class="dl">Оплата</div><div id="sv-pa" style="font-size:13px;line-height:1.5"></div></div>
+          <div style="grid-column:1/-1"><div class="dl">Комментарии</div><div id="sv-co" style="font-size:13px;line-height:1.5"></div></div>
+        </div>
+        <div id="sv-ro" class="rrow"></div>
+        <div style="border-top:.5px solid #e0e0e0;padding-top:1rem">
+          <div style="font-size:12px;color:#888;margin-bottom:6px">Вставьте входящее письмо — сгенерирую черновик ответа</div>
+          <textarea id="sv-ml" rows="4" style="resize:vertical" placeholder="Здравствуйте! Хотим уточнить..."></textarea>
+          <div style="margin-top:8px;display:flex;gap:10px;align-items:center">
+            <button id="sv-gb" onclick="genDraft()">Сгенерировать черновик ↗</button>
+            <span id="sv-gs" style="font-size:12px;color:#888"></span>
+          </div>
+          <div id="sv-go" class="dbox" style="display:none"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== РАСЧЁТ ========== -->
+  <div id="tab-ra" class="tc">
+    <div class="uz" style="padding:1.5rem 2rem">
+      <input type="file" id="ra-f" accept=".xlsx,.xls">
+      <p style="font-weight:500;margin-bottom:6px" id="ra-fn">Файл расселения от коллектива</p>
+      <label for="ra-f" class="ulbl" id="ra-ulbl">Загрузить Excel</label>
+      <p style="margin-top:6px;font-size:12px;color:#888">Список участников в формате гостиницы (ФИО, даты, тип номера)</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.25rem">
+      <div class="pi"><label>Название коллектива</label><input type="text" id="ra-nm" placeholder="Болеро+"></div>
+      <div class="pi">
+        <label>Смена</label>
+        <select id="ra-sh" onchange="onRaShift()">
+          <option value="1" data-from="07.06.2026" data-to="10.06.2026">1 смена (7–10 июня, 3 ночи)</option>
+          <option value="2" data-from="11.06.2026" data-to="17.06.2026">2 смена (11–17 июня, 6 ночей)</option>
+          <option value="3" data-from="18.06.2026" data-to="24.06.2026">3 смена (18–24 июня, 6 ночей)</option>
+          <option value="4" data-from="25.06.2026" data-to="01.07.2026">4 смена (25 июня — 1 июля)</option>
+          <option value="5" data-from="02.07.2026" data-to="08.07.2026">5 смена (2–8 июля)</option>
+          <option value="6" data-from="09.07.2026" data-to="15.07.2026">6 смена (9–15 июля)</option>
+          <option value="7" data-from="16.07.2026" data-to="22.07.2026">7 смена (16–22 июля)</option>
+          <option value="8" data-from="23.07.2026" data-to="29.07.2026">8 смена (23–29 июля)</option>
+          <option value="9" data-from="30.07.2026" data-to="05.08.2026">9 смена (30 июля — 5 августа)</option>
+          <option value="10" data-from="06.08.2026" data-to="12.08.2026">10 смена (6–12 августа)</option>
+          <option value="11" data-from="13.08.2026" data-to="19.08.2026">11 смена (13–19 августа)</option>
+          <option value="12" data-from="20.08.2026" data-to="26.08.2026">12 смена (20–26 августа)</option>
+          <option value="13" data-from="26.08.2026" data-to="30.08.2026">13 смена (26–30 августа)</option>
+        </select>
+      </div>
+      <div class="pi"><label>Начало основного периода</label><input type="text" id="ra-ci" value="07.06.2026"></div>
+      <div class="pi"><label>Конец основного периода</label><input type="text" id="ra-co" value="10.06.2026"></div>
+    </div>
+
+    <div style="margin-bottom:.75rem" class="stn">Цены (руб.)</div>
+    <div class="pgrid" style="margin-bottom:1.25rem">
+      <div class="pi"><label>2-местное стандарт</label><input type="number" id="p-2s" value="19900"></div>
+      <div class="pi"><label>2-местное + доп. (основное)</label><input type="number" id="p-2m" value="19900"></div>
+      <div class="pi"><label>2-местное + доп. (раскладушка)</label><input type="number" id="p-2x" value="18000"></div>
+      <div class="pi"><label>4-ярусное, нижнее место</label><input type="number" id="p-4l" value="19900"></div>
+      <div class="pi"><label>4-ярусное, верхнее место</label><input type="number" id="p-4u" value="17000"></div>
+      <div class="pi"><label>4-местное (все 4 места)</label><input type="number" id="p-4f" value="17000"></div>
+      <div class="pi"><label>Ребёнок 4–5 лет (руб./ночь)</label><input type="number" id="p-c5" value="2500"></div>
+      <div class="pi"><label>Доп. ночь — 2-местное</label><input type="number" id="p-n2" value="6300"></div>
+      <div class="pi"><label>Доп. ночь — 4-ярус. нижнее</label><input type="number" id="p-n4l" value="5000"></div>
+      <div class="pi"><label>Доп. ночь — 4-ярус. верхнее</label><input type="number" id="p-n4u" value="5000"></div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem">
+      <button class="btn-p" id="ra-btn" onclick="analyzeRass()" disabled>Анализировать и составить расчёт ↗</button>
+      <span id="ra-st" style="font-size:12px;color:#888"></span>
+    </div>
+
+    <div id="ra-warn" style="display:none"></div>
+    <div id="ra-rooms" style="display:none"></div>
+    <div id="ra-calc" style="display:none"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script>
+// ===== STATE =====
+let WD={}, curSh='', curC=null, allC=[], gMode=false;
+let RP=[];
+
+// ===== UTILS =====
+function esc(t){return String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function n(v){return typeof v==='number'?v:0;}
+function s(v){return v?String(v).trim():'';}
+function fmt(v){return(v||0).toLocaleString('ru-RU');}
+
+// ===== TABS =====
+function showTab(id,btn){
+  document.querySelectorAll('.tc').forEach(e=>e.classList.remove('on'));
+  document.querySelectorAll('.tb').forEach(e=>e.classList.remove('on'));
+  document.getElementById('tab-'+id).classList.add('on');
+  btn.classList.add('on');
+}
+
+// ===== СВОДНАЯ =====
+document.getElementById('sv-f').addEventListener('change',onSvF);
+
+function onSvF(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const wb=XLSX.read(ev.target.result,{type:'binary'});
+      parseWb(wb);
+      document.getElementById('sv-up').style.display='none';
+      document.getElementById('sv-app').style.display='';
+      const sel=document.getElementById('sv-sh');
+      sel.innerHTML=wb.SheetNames.map(nm=>`<option value="${esc(nm)}">${esc(nm)}</option>`).join('');
+      curSh=wb.SheetNames[0];
+      onShCh();
+    }catch(err){alert('Ошибка: '+err.message);}
+  };
+  r.readAsBinaryString(f);
+}
+
+function parseWb(wb){
+  WD={};
+  wb.SheetNames.forEach(nm=>{
+    const rows=XLSX.utils.sheet_to_json(wb.Sheets[nm],{header:1,defval:null});
+    WD[nm]=parseSh(rows);
+  });
+}
+
+function parseSh(rows){
+  let capTxt='',hi=-1,inS=false;
+  const colls=[];
+  for(let i=0;i<rows.length;i++){
+    const row=rows[i]||[];
+    const f=row[0]!=null?String(row[0]):'';
+    if(f.includes('ЗАЯВКИ С ПРОЖИВАНИЕМ'))capTxt=f;
+    if(f.toLowerCase().includes('номер заявки')){hi=i;inS=true;}
+    if(f.includes('ЗАЯВКИ БЕЗ ПРОЖИВАНИЯ'))break;
+    if(inS&&i>hi){
+      const id=row[0];
+      if(typeof id==='number'&&id>0){
+        colls.push({
+          id,name:String(row[1]||'').split('\n')[0].trim(),
+          people:n(row[2]),
+          rooms:{single:n(row[3]),double:n(row[4]),doubleExtra:n(row[5]),quad3:n(row[6]),quadBunk:n(row[7])},
+          comments:s(row[8]),transfer:s(row[10]),payment:s(row[13]),
+          phone:s(row[17]),email:s(row[18]),status:s(row[21]),
+        });
+      }
+    }
+  }
+  const cap=parseCap(capTxt);
+  const bkd={
+    double:colls.reduce((a,c)=>a+c.rooms.double+c.rooms.single,0),
+    triple:colls.reduce((a,c)=>a+c.rooms.doubleExtra,0),
+    quad:colls.reduce((a,c)=>a+c.rooms.quad3+c.rooms.quadBunk,0),
+  };
+  return{cap,colls,bkd};
+}
+
+function parseCap(txt){
+  const r={double:0,triple:0,quad:0};
+  if(!txt)return r;
+  const ci=txt.lastIndexOf(':');
+  const part=ci>=0?txt.slice(ci+1):txt;
+  const nums=[...part.matchAll(/(\d+)\s*номеров?/gi)].map(m=>parseInt(m[1]));
+  r.double=nums[0]||0;r.triple=nums[1]||0;r.quad=nums[2]||0;
+  return r;
+}
+
+function onShCh(){
+  curSh=document.getElementById('sv-sh').value;
+  document.getElementById('sv-gq').value='';
+  gMode=false;
+  document.getElementById('sv-lc').style.opacity='1';
+  allC=(WD[curSh]?.colls||[]).map(c=>({...c,_sh:curSh}));
+  renderStats(WD[curSh]);
+  document.getElementById('sv-stats').style.display='';
+  renderC(allC,false);
+  closeDet();
+}
+
+function gSearch(q){
+  const tq=q.trim().toLowerCase();
+  if(tq.length<2){
+    gMode=false;
+    document.getElementById('sv-lc').style.opacity='1';
+    document.getElementById('sv-stats').style.display='';
+    allC=(WD[curSh]?.colls||[]).map(c=>({...c,_sh:curSh}));
+    renderStats(WD[curSh]);
+    renderC(allC,false);
+    closeDet();
+    return;
+  }
+  gMode=true;
+  document.getElementById('sv-lc').style.opacity='.4';
+  document.getElementById('sv-stats').style.display='none';
+  const res=[];
+  Object.entries(WD).forEach(([sh,d])=>{
+    d.colls.forEach(c=>{
+      if(c.name.toLowerCase().includes(tq)||c.email.toLowerCase().includes(tq)||c.phone.toLowerCase().includes(tq)){
+        res.push({...c,_sh:sh});
+      }
+    });
+  });
+  allC=res;
+  renderC(res,true);
+  closeDet();
+}
+
+function lSearch(q){
+  if(gMode)return;
+  const tq=q.trim().toLowerCase();
+  const base=(WD[curSh]?.colls||[]).map(c=>({...c,_sh:curSh}));
+  renderC(tq?base.filter(c=>c.name.toLowerCase().includes(tq)||c.email.toLowerCase().includes(tq)):base,false);
+}
+
+function renderStats(d){
+  if(!d)return;
+  const{cap,bkd}=d;
+  const types=[
+    {label:'2-местные',total:cap.double,used:bkd.double,note:'включает 1-местные'},
+    {label:'2-местные + доп.',total:cap.triple,used:bkd.triple,note:'3-местное размещение'},
+    {label:'4-местные',total:cap.quad,used:bkd.quad,note:'3 чел. + ярусные'},
+  ];
+  const cc={ok:'#1e7e34',warn:'#b45309',danger:'#a32d2d'};
+  document.getElementById('sv-stats').innerHTML=types.map(t=>{
+    const free=Math.max(0,t.total-t.used);
+    const pct=t.total>0?Math.min(1,t.used/t.total):0;
+    const cl=pct>0.8?'danger':pct>0.5?'warn':'ok';
+    const col=cc[cl];
+    return`<div class="sc">
+      <div class="sl">${t.label}</div>
+      <div class="sm" style="color:${col}">${t.total>0?free:'—'} <span style="font-size:14px;font-weight:400;color:#888">своб.</span></div>
+      <div class="ssub">${t.total>0?`всего: ${t.total} · занято: ${t.used}`:'нет данных'}</div>
+      ${t.total>0?`<div class="sbar"><div style="height:100%;width:${Math.round(pct*100)}%;background:${col};border-radius:2px"></div></div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function renderC(list,showSh){
+  document.getElementById('sv-cnt').textContent=list.length+' коллективов';
+  document.getElementById('sv-th').innerHTML=`
+    <th>#</th>
+    ${showSh?'<th>Смена</th>':''}
+    <th>Коллектив</th>
+    <th style="text-align:right">Чел</th>
+    <th style="text-align:right">2-мест</th>
+    <th style="text-align:right">2+доп</th>
+    <th style="text-align:right">4(3ч)</th>
+    <th style="text-align:right">4(яр)</th>
+    <th>Email</th>`;
+  document.getElementById('sv-tb').innerHTML=list.map(c=>`
+    <tr class="rc" data-id="${c.id}" data-sh="${esc(c._sh)}" onclick="selC(${c.id},'${esc(c._sh)}')">
+      <td style="color:#888">${c.id}</td>
+      ${showSh?`<td><span class="bsh">${esc(shLabel(c._sh))}</span></td>`:''}
+      <td style="max-width:200px;overflow-wrap:anywhere">${esc(c.name)}</td>
+      <td style="text-align:right">${c.people||''}</td>
+      <td style="text-align:right">${c.rooms.double||''}</td>
+      <td style="text-align:right">${c.rooms.doubleExtra||''}</td>
+      <td style="text-align:right">${c.rooms.quad3||''}</td>
+      <td style="text-align:right">${c.rooms.quadBunk||''}</td>
+      <td style="font-size:12px;color:#888;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.email)}</td>
+    </tr>`).join('');
+}
+
+function shLabel(sh){
+  const parts=sh.split(' ');
+  return parts.slice(0,2).join(' ');
+}
+
+function selC(id,sh){
+  const d=WD[sh];if(!d)return;
+  curC=d.colls.find(c=>c.id===id);if(!curC)return;
+  document.querySelectorAll('.rc').forEach(r=>r.classList.remove('sel'));
+  document.querySelector(`.rc[data-id="${id}"][data-sh="${esc(sh)}"]`)?.classList.add('sel');
+  const c=curC;
+  document.getElementById('sv-dn').textContent=c.name;
+  document.getElementById('sv-ds').innerHTML=`<span class="bsh bsh-lg">${esc(sh)}</span>`;
+  document.getElementById('sv-ph').textContent=c.phone||'—';
+  document.getElementById('sv-em').textContent=c.email||'—';
+  document.getElementById('sv-pe').textContent=c.people?c.people+' чел.':'—';
+  document.getElementById('sv-tr').textContent=c.transfer||'—';
+  document.getElementById('sv-pa').textContent=c.payment||'—';
+  document.getElementById('sv-co').textContent=c.comments||'—';
+  const chips=[
+    c.rooms.single&&`1-местные: ${c.rooms.single}`,
+    c.rooms.double&&`2-местные: ${c.rooms.double}`,
+    c.rooms.doubleExtra&&`2-местные+доп: ${c.rooms.doubleExtra}`,
+    c.rooms.quad3&&`4-местные (3 чел): ${c.rooms.quad3}`,
+    c.rooms.quadBunk&&`4-местные (ярусные): ${c.rooms.quadBunk}`,
+  ].filter(Boolean);
+  document.getElementById('sv-ro').innerHTML=chips.length
+    ?chips.map(p=>`<span class="rchip">${p}</span>`).join('')
+    :'<span style="font-size:13px;color:#888">Без размещения</span>';
+  document.getElementById('sv-ml').value='';
+  document.getElementById('sv-go').style.display='none';
+  document.getElementById('sv-gs').textContent='';
+  if(gMode){document.getElementById('sv-sh').value=sh;curSh=sh;}
+  const panel=document.getElementById('sv-det');
+  panel.style.display='';
+  setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+}
+
+function closeDet(){
+  document.getElementById('sv-det').style.display='none';
+  document.querySelectorAll('.rc').forEach(r=>r.classList.remove('sel'));
+  curC=null;
+}
+
+async function genDraft(){
+  if(!curC)return;
+  const email=document.getElementById('sv-ml').value.trim();
+  if(!email){document.getElementById('sv-gs').textContent='Вставьте текст письма';return;}
+  const c=curC,sh=document.getElementById('sv-sh').value,d=WD[sh];
+  const ri=[
+    c.rooms.single&&`1-местных: ${c.rooms.single}`,
+    c.rooms.double&&`2-местных: ${c.rooms.double}`,
+    c.rooms.doubleExtra&&`2-местных+доп: ${c.rooms.doubleExtra}`,
+    c.rooms.quad3&&`4-местных (3 чел): ${c.rooms.quad3}`,
+    c.rooms.quadBunk&&`4-местных (ярусных): ${c.rooms.quadBunk}`,
+  ].filter(Boolean).join(', ')||'—';
+  const av=d?[
+    d.cap.double>0&&`2-местные: ${Math.max(0,d.cap.double-d.bkd.double)} своб. из ${d.cap.double}`,
+    d.cap.triple>0&&`2+доп: ${Math.max(0,d.cap.triple-d.bkd.triple)} своб. из ${d.cap.triple}`,
+    d.cap.quad>0&&`4-местные: ${Math.max(0,d.cap.quad-d.bkd.quad)} своб. из ${d.cap.quad}`,
+  ].filter(Boolean).join('; '):'—';
+  const btn=document.getElementById('sv-gb');
+  btn.disabled=true;document.getElementById('sv-gs').textContent='Генерирую...';
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',max_tokens:1000,
+      system:'Ты помощник менеджера фестиваля "У Самого Черного Моря". Пиши ответные письма: вежливо, кратко, по делу, на русском.',
+      messages:[{role:'user',content:`Коллектив: ${c.name}\nСмена: ${sh}\nУчастников: ${c.people||'—'}\nРазмещение: ${ri}\nТрансфер: ${c.transfer||'—'}\nДоступность: ${av}\n\nПисьмо:\n${email}\n\nЧерновик:`}]
+    })});
+    const data=await resp.json();
+    const txt=data.content?.[0]?.text||'Ошибка';
+    const out=document.getElementById('sv-go');out.textContent=txt;out.style.display='';
+    document.getElementById('sv-gs').textContent='Готово';
+  }catch(err){document.getElementById('sv-gs').textContent='Ошибка: '+err.message;}
+  finally{btn.disabled=false;}
+}
+
+// ===== РАСЧЁТ =====
+document.getElementById('ra-f').addEventListener('change',onRaF);
+
+function onRaShift(){
+  const opt=document.getElementById('ra-sh').selectedOptions[0];
+  if(opt.dataset.from)document.getElementById('ra-ci').value=opt.dataset.from;
+  if(opt.dataset.to)document.getElementById('ra-co').value=opt.dataset.to;
+}
+
+function onRaF(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const wb=XLSX.read(ev.target.result,{type:'binary'});
+      const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:null});
+      RP=parseRass(rows);
+      document.getElementById('ra-fn').textContent=f.name+' ('+RP.length+' чел.)';
+      document.getElementById('ra-ulbl').textContent='Загрузить другой';
+      document.getElementById('ra-btn').disabled=false;
+    }catch(err){alert('Ошибка: '+err.message);}
+  };
+  r.readAsBinaryString(f);
+}
+
+function parseRass(rows){
+  const people=[];
+  let hi=rows.findIndex(r=>r&&(String(r[0]||'').includes('п/п')||String(r[1]||'').toLowerCase().includes('фамилия')));
+  if(hi<0)hi=0;
+  for(let i=hi+1;i<rows.length;i++){
+    const row=rows[i];if(!row||row[0]==null)continue;
+    const id=row[0];if(typeof id!=='number'||id<=0)continue;
+    people.push({
+      no:id,
+      lastName:s(row[1]),firstName:s(row[2]),middleName:s(row[3]),
+      dob:fmtD(row[4]),
+      age:typeof row[5]==='number'?row[5]:null,
+      checkIn:fmtD(row[6]),checkOut:fmtD(row[7]),
+      roomType:s(row[8]),
+      tariff:typeof row[9]==='number'?row[9]:null,
+      days:typeof row[10]==='number'?row[10]:null,
+    });
+  }
+  return people;
+}
+
+function fmtD(v){
+  if(!v)return null;
+  if(v instanceof Date)return v.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
+  return String(v);
+}
+
+async function analyzeRass(){
+  if(!RP.length)return;
+  const btn=document.getElementById('ra-btn'),st=document.getElementById('ra-st');
+  btn.disabled=true;st.innerHTML='Анализирую...<span class="spin"></span>';
+  document.getElementById('ra-warn').style.display='none';
+  document.getElementById('ra-rooms').style.display='none';
+  document.getElementById('ra-calc').style.display='none';
+
+  const P={
+    s2:gv('p-2s'),m2:gv('p-2m'),x2:gv('p-2x'),
+    l4:gv('p-4l'),u4:gv('p-4u'),f4:gv('p-4f'),
+    c5:gv('p-c5'),n2:gv('p-n2'),nl4:gv('p-n4l'),nu4:gv('p-n4u'),
+  };
+  const nm=document.getElementById('ra-nm').value||'Коллектив';
+  const sh=document.getElementById('ra-sh').selectedOptions[0].text;
+  const ci=document.getElementById('ra-ci').value;
+  const co=document.getElementById('ra-co').value;
+
+  const prompt=`Ты анализируешь список расселения коллектива для фестиваля "У Самого Черного Моря" в Сочи.
+
+УЧАСТНИКИ:
+${JSON.stringify(RP)}
+
+ПАРАМЕТРЫ:
+Коллектив: ${nm}
+Смена: ${sh}
+Основной период: с ${ci} по ${co}
+
+ЦЕНЫ (руб.):
+2-местное стандарт: ${P.s2}
+2+доп основное место: ${P.m2}
+2+доп раскладушка (доп. место): ${P.x2}
+4-ярусное нижнее: ${P.l4}
+4-ярусное верхнее: ${P.u4}
+4-местное полное: ${P.f4}
+Ребёнок 4-5 лет за ночь: ${P.c5}
+Ребёнок до 3 лет: 0
+Доп. ночь 2-местное: ${P.n2}
+Доп. ночь 4-ярусное нижнее: ${P.nl4}
+Доп. ночь 4-ярусное верхнее: ${P.nu4}
+
+ПРАВИЛА ГРУППИРОВКИ НОМЕРОВ:
+1. Тип номера (roomType) указан только у первого человека в номере — у остальных пустой
+2. Каждый новый непустой roomType = начало нового номера
+3. Нормализуй типы: все варианты "2-местный", "2х местный", "2-местное" и т.д. → "2-местное"; всё с "доп" (доп место, доп раскладушка, + доп) → "2+доп"; всё с "3-местн", "3х" и т.д. → "3-местное" (4-ярусная комната на 3 чел); всё с "4-местн", "4х" → "4-местное"
+4. Возраст ≤ 3 — бесплатно (role: "бесплатно"), не занимает отдельное место
+5. Возраст 4-5 — 2500 руб/ночь (role: "4-5лет")
+6. Все остальные — основное или доп место (role: "основное" / "доп")
+7. Если checkIn раньше или checkOut позже основного периода → доп. сутки
+
+СТРОКИ РАСЧЁТА (только нужные, пропускай нулевые):
+1. 2-местное размещение (N чел × цена_за_путёвку)
+2. 2+доп основное место (N чел × цена)
+3. 2+доп раскладушка (N чел × цена)
+4. 4-ярусное нижнее место (N чел × цена)
+5. 4-ярусное верхнее место (N чел × цена)
+6. 4-местное размещение (N чел × цена)
+7. Дети до 3 лет (N × 0)
+8. Дети 4-5 лет (N × цена_за_весь_период)
+9. Доп. сутки — [тип] (N × цена)
+
+Верни ТОЛЬКО валидный JSON без markdown:
+{
+  "rooms": [{"id":1,"type":"2-местное","checkIn":"07.06","checkOut":"10.06","nights":3,"isExtra":false,"people":[{"name":"Иванов И.И.","age":35,"role":"основное","price":19900}]}],
+  "calcLines": [{"no":1,"desc":"Описание","count":0,"price":0,"total":0}],
+  "totalAccommodation": 0,
+  "warnings": []
+}`;
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',max_tokens:4000,
+      system:'Отвечай ТОЛЬКО валидным JSON без markdown, без текста до или после JSON.',
+      messages:[{role:'user',content:prompt}]
+    })});
+    const data=await resp.json();
+    let txt=(data.content?.[0]?.text||'').replace(/```json\s*/g,'').replace(/```\s*/g,'').trim();
+    let res;
+    try{res=JSON.parse(txt);}catch(e){throw new Error('Не удалось разобрать JSON: '+e.message+'\n\nОтвет:\n'+txt.slice(0,300));}
+    renderRa(res,nm,sh,ci,co);
+    st.textContent='Готово';
+  }catch(err){
+    st.textContent='Ошибка: '+err.message;
+    console.error(err);
+  }finally{btn.disabled=false;}
+}
+
+function gv(id){return parseInt(document.getElementById(id).value)||0;}
+
+function renderRa(res,nm,sh,ci,co){
+  // Warnings
+  const wEl=document.getElementById('ra-warn');
+  if(res.warnings?.length){
+    wEl.style.display='';
+    wEl.innerHTML=`<div class="warn-box">
+      <div style="font-size:11px;font-weight:500;color:#7a5200;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Требует внимания (${res.warnings.length})</div>
+      ${res.warnings.map(w=>`<div class="wi">${esc(w)}</div>`).join('')}
+    </div>`;
+  }
+
+  // Rooms
+  const rEl=document.getElementById('ra-rooms');
+  rEl.style.display='';
+  const tc={'2-местное':'rt2','2+доп':'rt2d','3-местное':'rt3','4-местное':'rt4'};
+  const typeNames={'2-местное':'2-местное','2+доп':'2 + доп. место','3-местное':'4-ярусный / 3 чел.','4-местное':'4-местное / 4 чел.'};
+  rEl.innerHTML=`<div class="stn" style="margin-bottom:.75rem">Номера (${(res.rooms||[]).length})</div>
+    <div class="rgrid">
+      ${(res.rooms||[]).map(rm=>`
+        <div class="rcard">
+          <div>
+            <span class="rtbdg ${tc[rm.type]||'rt2'}">${esc(typeNames[rm.type]||rm.type)}</span>
+            ${rm.isExtra?'<span style="font-size:11px;color:#888;margin-left:4px">доп. ночи</span>':''}
+          </div>
+          <div style="font-size:12px;color:#888;margin-bottom:6px">${esc(rm.checkIn||'')} — ${esc(rm.checkOut||'')}${rm.nights?' ('+rm.nights+' н.)':''}</div>
+          ${(rm.people||[]).map(p=>`<div class="rp"><span>${esc(p.name)}${p.age!=null?' ('+p.age+'&#160;лет)':''}</span><span class="rpr">${esc(p.role)}</span></div>`).join('')}
+        </div>`).join('')}
+    </div>`;
+
+  // Calc table
+  const cEl=document.getElementById('ra-calc');
+  cEl.style.display='';
+  window._CL=(res.calcLines||[]).map(l=>({...l}));
+  window._CT=res.totalAccommodation||0;
+
+  cEl.innerHTML=`
+    <div class="stn" style="margin-bottom:4px">Расчёт — ${esc(nm)} — ${esc(sh)}</div>
+    <div style="font-size:12px;color:#888;margin-bottom:.875rem">${esc(ci)} — ${esc(co)}</div>
+    <div class="wrap">
+      <table class="ctbl">
+        <thead><tr><th>#</th><th>Наименование</th><th>Кол-во</th><th>Цена, руб.</th><th style="text-align:right;min-width:100px">Сумма, руб.</th></tr></thead>
+        <tbody>${window._CL.map((l,i)=>`
+          <tr>
+            <td style="color:#888">${l.no||i+1}</td>
+            <td style="font-size:12px;line-height:1.45;max-width:320px">${esc(l.desc)}</td>
+            <td><input type="number" value="${l.count}" min="0" onchange="updCL(${i},'count',this.value)" style="width:60px"></td>
+            <td><input type="number" value="${l.price}" min="0" onchange="updCL(${i},'price',this.value)" style="width:90px"></td>
+            <td id="cl-${i}" style="text-align:right;font-weight:500">${fmt(l.total)}</td>
+          </tr>`).join('')}</tbody>
+        <tfoot>
+          <tr><td colspan="4" style="font-weight:500">ИТОГО ЗА ПРОЖИВАНИЕ:</td><td style="text-align:right;font-weight:500" id="cl-sum">${fmt(window._CT)}</td></tr>
+          <tr><td colspan="4">Оплачено:</td><td><input type="number" id="cl-paid" value="0" onchange="updRem()" style="width:120px;text-align:right"></td></tr>
+          <tr><td colspan="4">ОСТАТОК К ОПЛАТЕ:</td><td style="text-align:right" id="cl-rem">${fmt(window._CT)}</td></tr>
+        </tfoot>
+      </table>
+    </div>`;
+}
+
+function updCL(i,field,val){
+  if(!window._CL)return;
+  window._CL[i][field]=parseFloat(val)||0;
+  const l=window._CL[i];
+  l.total=Math.round(l.count*l.price);
+  document.getElementById('cl-'+i).textContent=fmt(l.total);
+  const tot=window._CL.reduce((s,l)=>s+(l.total||0),0);
+  window._CT=tot;
+  document.getElementById('cl-sum').textContent=fmt(tot);
+  updRem();
+}
+
+function updRem(){
+  const paid=parseFloat(document.getElementById('cl-paid')?.value)||0;
+  document.getElementById('cl-rem').textContent=fmt((window._CT||0)-paid);
+}
+</script>
+</body>
+</html>
